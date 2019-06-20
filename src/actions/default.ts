@@ -10,21 +10,28 @@ export default {};
 export enum DefaultActionTypes {
   ADD_USER = 'ADD_USER',
   ADD_TODO = 'ADD_TODO',
+  ADD_CAT_FACT = 'ADD_CAT_FACT',
 }
 
 export interface IUser {
+  id: number;
   name: string;
 }
 
 export const UserFactory = Record<IUser>({
+  id: -1,
   name: '',
 });
 
 export interface ITodo {
+  id:  number;
+  userId: number;
   title: string;
 }
 
 export const TodoFactory = Record<ITodo>({
+  id: -1,
+  userId: -1,
   title: 'untitled',
 });
 
@@ -39,6 +46,16 @@ export class AddUserAction implements IAction {
 
 export class AddTodoAction implements IAction {
   public readonly type = DefaultActionTypes.ADD_TODO;
+  constructor(
+    public payload: {
+      userId: number,
+      todo: Record<ITodo>,
+    }
+  ) {}
+}
+
+export class AddCatFactAction implements IAction {
+  public readonly type = DefaultActionTypes.ADD_CAT_FACT;
   constructor(
     public payload: {
       userId: number,

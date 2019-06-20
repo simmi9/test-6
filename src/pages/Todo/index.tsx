@@ -3,7 +3,6 @@ import { compose } from 'redux';
 import { IMatch } from '../../Interfaces';
 import {
   Record,
-  List,
   Map,
 } from 'immutable';
 import { connect } from 'react-redux';
@@ -18,7 +17,7 @@ interface ITodoComponentProps {
 }
 
 interface ITodoProps extends ITodoComponentProps {
-  todos: Map<number, List<Record<ITodo>>>
+  todos: Map<number, Record<ITodo>>
 }
 
 const Todo: React.FC<ITodoProps> = (props) => {
@@ -47,15 +46,16 @@ const Todo: React.FC<ITodoProps> = (props) => {
         wrap='nowrap'
       >
         {
-          todos.map((todo, userId) => {
+          todos.map((todo, todoId) => {
+            const userId = todo.get('userId');
             return <Grid
-              key={userId}
+              key={todoId}
               item={true}
             >
               <Link
                 to={`/todo/${userId}`}
               >
-                {todo.count()} todo(s) for user {userId}
+                {todoId}: {todo.get('title')}
               </Link>
             </Grid>;
           }).valueSeq().toArray()

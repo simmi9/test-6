@@ -1,7 +1,7 @@
 import {
   fromJS,
-  List,
   Record,
+  Map,
 } from 'immutable';
 import {
   IAction,
@@ -23,33 +23,50 @@ import {
 
 export interface IReducerState {
   lastUserId: number;
+  lastTodoId: number;
   users: Map<number, Record<IUser>>;
-  todos: Map<number, List<Record<ITodo>>>;
+  todos: Map<number, Record<ITodo>>;
 }
 
+const initialUsers = [
+  UserFactory({
+    id: 1,
+    name: 'Ryan',
+  }),
+  UserFactory({
+    id: 2,
+    name: 'Sandy',
+  }),
+  UserFactory({
+    id: 3,
+    name: 'Sean',
+  }),
+  UserFactory({
+    id: 4,
+    name: 'Peter',
+  }),
+]
+
+const initialTodos = [
+  TodoFactory({
+    id: 1,
+    userId: 1,
+    title: 'Drink Water',
+  })
+]
 const INITIAL_STATE = fromJS({
-  lastUserId: 4,
-  users: {
-    1: UserFactory({
-      name: 'Ryan',
-    }),
-    2: UserFactory({
-      name: 'Sandy',
-    }),
-    3: UserFactory({
-      name: 'Sean',
-    }),
-    4: UserFactory({
-      name: 'Peter',
-    }),
-  },
-  todos: {
-    1: List([
-      TodoFactory({
-        title: 'Drink Water',
-      }),
-    ]),
-  },
+  lastUserId: initialUsers.length,
+  lastTodoId: initialTodos.length,
+  users: Map<number, Record<IUser>>().withMutations((mutableMap) => {
+    initialUsers.forEach((user) => {
+      mutableMap.set(user.get('id'), user);
+    })
+  }),
+  todos: Map<number, Record<ITodo>>().withMutations((mutableMap) => {
+    initialTodos.forEach((todo) => {
+      mutableMap.set(todo.get('id'), todo);
+    })
+  }),
 });
 
 export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IAction) => {
@@ -63,16 +80,22 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
         user,
       } = payload;
 
+      if (user.get('name') === '') {
+        console.debug('no name!')
+        return state;
+      }
+
       const userId = lastUserId + 1;
       return state.withMutations((mutableState) => {
         mutableState.set('lastUserId', userId);
         mutableState.setIn(
           ['users', userId],
-          user,
+          user.set('id', userId),
         );
       })
     }
     case DefaultActionTypes.ADD_TODO: {
+      const lastTodoId = state.get('lastTodoId');
       const {
         payload,
       } = action as AddTodoAction;
@@ -80,14 +103,23 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
         userId,
         todo,
       } = payload;
-      return state.updateIn(
-        ['todos', userId],
-        (todoListForUser?: List<Record<ITodo>>) => {
-          return (todoListForUser || List<Record<ITodo>>()).push(
-            todo,
-          );
-        }
-      );
+
+      if (todo.get('title') === '') {
+        console.debug('no title!')
+        return state;
+      }
+
+      const todoId = lastTodoId + 1;
+      return state.withMutations((mutableState) => {
+        mutableState.set('lastTodoId', todoId);
+        mutableState.setIn(
+          ['todos', todoId],
+          todo.withMutations((mutableTodo) => {
+            mutableTodo.set('id', todoId)
+            mutableTodo.set('userId', userId)
+          }),
+        );
+      });
     }
     default:
       return state;

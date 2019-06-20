@@ -27,14 +27,19 @@ export const makeSelectUsers = () => createSelector(
   (state: Record<IReducerState>) => state.get('users') || Map<number, Record<IUser>>(),
 );
 
+export const makeSelectUser = (userId: number) => createSelector(
+  makeSelectUsers(),
+  (users) => users.get(userId),
+);
+
 export const makeSelectTodos = () => createSelector(
   selectReducerState(),
-  (state: Record<IReducerState>) => state.get('todos') || Map<number, List<Record<ITodo>>>(),
+  (state: Record<IReducerState>) => state.get('todos') || Map<number, Record<ITodo>>(),
 );
 
 export const makeSelectTodosForUser = (userId: number) => createSelector(
   makeSelectTodos(),
-  (todos) => todos.get(userId) || List<Record<ITodo>>(),
+  (todos) => todos.filter(todo => todo.get('userId') === userId).toList() || List<Record<ITodo>>(),
 );
 
 export default {

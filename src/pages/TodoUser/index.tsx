@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { compose, bindActionCreators, AnyAction, Dispatch } from 'redux';
+import {
+  compose,
+  bindActionCreators,
+  AnyAction,
+  Dispatch,
+} from 'redux';
 import { IMatch } from '../../Interfaces';
 import {
   getIn,
@@ -7,15 +12,23 @@ import {
   List,
 } from 'immutable';
 import { connect } from 'react-redux';
-import { Grid, Typography, Button, TextField } from '@material-ui/core';
+import {
+  Grid,
+  Typography,
+  Button,
+  TextField,
+} from '@material-ui/core';
 import {
   AddTodoAction,
   ITodo,
   TodoFactory,
+  IUser,
 } from '../../actions/default';
 import {
   makeSelectTodosForUser,
+  makeSelectUser,
 } from '../../selectors/default';
+import { createStructuredSelector } from 'reselect';
 
 interface ITodoComponentProps {
   match: IMatch,
@@ -25,6 +38,7 @@ interface ITodoProps extends ITodoComponentProps {
   addTodo: (userId: number, todo: Record<ITodo>) => void;
   userId: number;
   todosForUser: List<Record<ITodo>>;
+  user?: Record<IUser>;
 }
 
 
@@ -37,7 +51,27 @@ const Todo: React.FC<ITodoProps> = (props) => {
     addTodo,
     userId,
     todosForUser,
+    user,
   } = props;
+  if (user == null) {
+    return (
+      <Grid
+        container={true}
+        direction='column'
+        wrap='nowrap'
+      >
+        <Grid
+          item={true}
+        >
+          <Typography
+            variant='h5'
+          >
+            INVALID USER
+          </Typography>
+        </Grid>
+      </Grid>
+    );
+  }
   return (
     <Grid
       container={true}
@@ -50,7 +84,7 @@ const Todo: React.FC<ITodoProps> = (props) => {
         <Typography
           variant='h5'
         >
-          TODO
+          TODOS FOR {user.get('name')}
         </Typography>
       </Grid>
       <Grid
@@ -115,11 +149,13 @@ const mapStateToProps = (state: any, props: ITodoComponentProps) => {
   const {
     match,
   } = props;
-  const userId = getIn(match, ['params', 'userId'], -1); // from path / router
-  const todosForUser = makeSelectTodosForUser(userId)(state);
+  const userId = parseInt(getIn(match, ['params', 'userId'], -1), 10); // from path / router
   return {
     userId,
-    todosForUser,
+    ...createStructuredSelector({
+      todosForUser: makeSelectTodosForUser(userId),
+      user: makeSelectUser(userId),
+    })(state)
   }
 };
 

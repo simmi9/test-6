@@ -24,7 +24,7 @@ import {
 } from 'redux';
 
 import {
-  Map, Record,
+  Record,
 } from 'immutable';
 
 // export type GenericReducer = (state: ReducerState, action: IAction) => ReducerState;
