@@ -11,6 +11,7 @@ import {
   DefaultActionTypes,
   ITodo,
   AddTodoAction,
+  DeleteTodoAction,
   IUser,
   AddUserAction,
   DeleteUserAction,
@@ -96,7 +97,6 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
       })
     }
     case DefaultActionTypes.DELETE_USER: {
-      //const lastUserId = state.get('lastUserId');
       const {
         payload,
       } = action as DeleteUserAction;
@@ -104,12 +104,9 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
         user,
       } = payload;
 
-      //const userId = lastUserId - 1; 
-
       console.log(user);  
       return state.withMutations((mutableState) => {
         mutableState.set('users', mutableState.get('users').filter(o => o.get('id') !== user.get('id')));
-       // mutableState.set('lastUserId', userId);
       })
     }
     case DefaultActionTypes.ADD_TODO: {
@@ -137,6 +134,19 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
             mutableTodo.set('userId', userId)
           }),
         );
+      });
+    }
+     case DefaultActionTypes.DELETE_TODO: {
+      const {
+        payload,
+      } = action as AddTodoAction;
+      const {
+        userId,
+        todo,
+      } = payload;
+
+      return state.withMutations((mutableState) => {
+      mutableState.set('todos', mutableState.get('todos').filter(o => o.get('id') !== todo.get('id')));    
       });
     }
     default:
