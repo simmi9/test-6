@@ -20,6 +20,7 @@ import {
 } from '@material-ui/core';
 import {
   AddTodoAction,
+  DeleteTodoAction,
   ITodo,
   TodoFactory,
   IUser,
@@ -36,6 +37,7 @@ interface ITodoComponentProps {
 
 interface ITodoProps extends ITodoComponentProps {
   addTodo: (userId: number, todo: Record<ITodo>) => void;
+  deleteTodo: (userId: number, todo: Record<ITodo>) => void;
   userId: number;
   todosForUser: List<Record<ITodo>>;
   user?: Record<IUser>;
@@ -43,12 +45,14 @@ interface ITodoProps extends ITodoComponentProps {
 
 
 const addTodo = (userId: number, todo: Record<ITodo>) => new AddTodoAction({ userId, todo });
+const deleteTodo = (userId: number, todo: Record<ITodo>) => new DeleteTodoAction({ userId, todo });
 
 const Todo: React.FC<ITodoProps> = (props) => {
   const [textInput, setTextInput] = useState('');
 
   const {
     addTodo,
+    deleteTodo,
     userId,
     todosForUser,
     user,
@@ -130,16 +134,47 @@ const Todo: React.FC<ITodoProps> = (props) => {
             </Button>
           </Grid>
         </Grid>
+
+
         {
           todosForUser.map((todo, index) => {
-            return <Grid
+            return ( <Grid
               key={index}
               item={true}
             >
               {todo.get('title')}
-            </Grid>;
+            <Button
+              key={index}
+              variant='outlined'
+              onClick={
+                () => {
+                  deleteTodo(
+                    userId,
+                    TodoFactory({
+                         id: todo.get('id'),
+                     userId: userId,
+                      title: textInput,
+                    }),
+                  );
+                }
+              }
+            >
+              Delete Todo
+            </Button>
+        </Grid> );
+
           })
         }
+
+
+        
+
+
+
+
+
+
+
       </Grid>
     </Grid>
   );
@@ -161,7 +196,7 @@ const mapStateToProps = (state: any, props: ITodoComponentProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
-    ...bindActionCreators({ addTodo }, dispatch)
+    ...bindActionCreators({ addTodo, deleteTodo }, dispatch)
   };
 };
 
