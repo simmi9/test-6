@@ -11,6 +11,7 @@ export enum DefaultActionTypes {
   ADD_USER = 'ADD_USER',
   ADD_TODO = 'ADD_TODO',
   ADD_CAT_FACT = 'ADD_CAT_FACT',
+  DELETE_USER = 'DELETE_USER'
 }
 
 export interface IUser {
@@ -37,6 +38,15 @@ export const TodoFactory = Record<ITodo>({
 
 export class AddUserAction implements IAction {
   public readonly type = DefaultActionTypes.ADD_USER;
+  constructor(
+    public payload: {
+      user: Record<IUser>,
+    }
+  ) {}
+}
+
+export class DeleteUserAction implements IAction {
+  public readonly type = DefaultActionTypes.DELETE_USER;
   constructor(
     public payload: {
       user: Record<IUser>,
