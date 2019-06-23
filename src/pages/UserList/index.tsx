@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { Grid, Typography, Button, TextField } from '@material-ui/core';
 import {
   AddUserAction,
+  DeleteUserAction,
   IUser,
   UserFactory,
 } from '../../actions/default';
@@ -24,16 +25,19 @@ interface IUserListComponentProps {
 
 interface IUserListProps extends IUserListComponentProps {
   addUser: (user: Record<IUser>) => void;
+  deleteUser: (user: Record<IUser>) => void;
   users: Map<number, Record<IUser>>;
 }
 
 const addUser = (user: Record<IUser>) => new AddUserAction({ user });
+const deleteUser = (user: Record<IUser>) => new DeleteUserAction({ user});
 
 const UserList: React.FC<IUserListProps> = (props) => {
   const [textInput, setTextInput] = useState('');
 
   const {
     addUser,
+    deleteUser,
     users,
   } = props;
   return (
@@ -93,6 +97,7 @@ const UserList: React.FC<IUserListProps> = (props) => {
             </Button>
           </Grid>
         </Grid>
+        
         {
           users.map((user, userId) => {
             return <Grid
@@ -126,6 +131,29 @@ const UserList: React.FC<IUserListProps> = (props) => {
                   </Typography>
                 </Link>
               </Grid>
+
+
+              <Grid
+                item={true}
+              >
+                < Button  
+                  variant='outlined'
+                  onClick={
+                () => {
+                  deleteUser(
+                    UserFactory({
+                      id: userId,
+                      name: user.get('name'),
+                    }),
+                  );
+                } 
+              }
+                >
+                  <Typography>
+                    Delete User
+                  </Typography>
+                </Button>
+              </Grid>
             </Grid>;
           }).valueSeq().toArray()
         }
@@ -140,7 +168,7 @@ const mapStateToProps = createStructuredSelector({
 
 const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
-    ...bindActionCreators({ addUser }, dispatch)
+    ...bindActionCreators({ addUser,deleteUser}, dispatch)
   };
 };
 
