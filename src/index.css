@@ -11,3 +11,27 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+	.MuiFormControl-root{
+vertical-align:bottom !important;
+	}  
+
+	.todo-individual-1{    
+		background-color: lightcyan;    
+	}
+
+	.todo-individual-2{    
+		background-color: lightgray;    
+	}
+
+	.todo-individual-3{    
+		background-color: lightgreen;    
+	}  
+
+	.todo-individual-4{    
+		background-color: lightblue;    
+	}  
+
+	.todo-individual-5{    
+		background-color: lightyellow;    
+	}  
