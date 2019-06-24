@@ -12,9 +12,37 @@ code {
     monospace;
 }
 
-	.MuiFormControl-root{
+	.MuiFormControl-root {
 vertical-align:bottom !important;
 	}  
+
+	.todo-title-true {
+		text-decoration: line-through;
+	}  
+
+	.button-completed-true {     
+		display: none !important;    
+	}   
+
+	.text-completed-true {      
+		display: none !important;    
+	}   
+
+	.button-delete-true-false {           
+		display: none !important ;     
+	}  
+
+	.button-delete-true-true {              
+		display: none !important ;     
+	}             
+
+	.button-addsubtodo-true {  
+		display: none !important ;     
+	}
+
+	.text-addsubtodo-true {
+		display: none !important ;  
+	}
 
 	.todo-individual-1{    
 		background-color: lightcyan;    

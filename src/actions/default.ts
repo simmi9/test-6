@@ -14,6 +14,7 @@ export enum DefaultActionTypes {
   DELETE_USER = 'DELETE_USER',
   DELETE_TODO = 'DELETE_TODO',
   ADD_SUB_TODO = 'ADD_SUB_TODO',
+  MARK_COMPLETED = 'MARK_COMPLETED',
 }
 
 export interface IUser {
@@ -30,13 +31,17 @@ export interface ITodo {
   id:  number;
   userId: number;
   title: string;
+  completed: boolean;
+  isSubtodo: boolean;
   subtodo: Record<ITodo>;     
 }  
 
 export const TodoFactory = Record<ITodo>({        
   id: -1,  
   userId: -1,
-  title: 'untitled',   
+  title: 'untitled', 
+  completed: false,
+  isSubtodo: false,
   subtodo: {} as Record<ITodo>,            
 });
 
@@ -84,6 +89,16 @@ export class AddSubTodoAction implements IAction {
     public payload: {
       userId: number,  
       todo: Record<ITodo>,  
+    }
+  ) {}
+}
+
+export class MarkTodoCompletedAction implements IAction {
+  public readonly type = DefaultActionTypes.MARK_COMPLETED;
+  constructor(
+    public payload: {
+      userId: number,
+      todo: Record<ITodo>,
     }
   ) {}
 }

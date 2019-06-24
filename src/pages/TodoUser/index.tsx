@@ -22,6 +22,7 @@ import {
   AddTodoAction,
   DeleteTodoAction,
   AddSubTodoAction,
+  MarkTodoCompletedAction,
   ITodo,
   TodoFactory,
   IUser,
@@ -40,6 +41,7 @@ interface ITodoProps extends ITodoComponentProps {
   addTodo: (userId: number, todo: Record<ITodo>) => void;
   deleteTodo: (userId: number, todo: Record<ITodo>) => void;
   addSubTodo: ( userId: number, todo: Record<ITodo>) => void;
+  markTodoCompleted: ( userId: number, todo: Record<ITodo>) => void;  
   userId: number;
   todosForUser: List<Record<ITodo>>;
   user?: Record<IUser>;  
@@ -50,6 +52,7 @@ const addTodo = (userId: number, todo: Record<ITodo>) => new AddTodoAction({ use
 const deleteTodo = (userId: number, todo: Record<ITodo>) => new DeleteTodoAction({ userId, todo });
 
 const  addSubTodo = (userId: number, todo: Record<ITodo>) => new AddSubTodoAction({userId, todo}); 
+const  markTodoCompleted = (userId: number, todo: Record<ITodo>) => new MarkTodoCompletedAction({userId, todo});   
 
 const Todo: React.FC<ITodoProps> = (props) => {
   const [textInput, setTextInput] = useState('');
@@ -59,6 +62,7 @@ const Todo: React.FC<ITodoProps> = (props) => {
     addTodo,
     deleteTodo,
     addSubTodo,
+    markTodoCompleted,
     userId,
     todosForUser,
     user,
@@ -128,8 +132,9 @@ const Todo: React.FC<ITodoProps> = (props) => {
                 () => {
                   addTodo(
                     userId,
-                    TodoFactory({
+                    TodoFactory({  
                       title: textInput,
+                      isSubtodo:false,  
                     }),
                   );
                   setTextInput('');   
@@ -139,7 +144,7 @@ const Todo: React.FC<ITodoProps> = (props) => {
               Add Todo
             </Button>
           </Grid>
-        </Grid>
+        </Grid> 
 
 
         {
@@ -149,28 +154,48 @@ const Todo: React.FC<ITodoProps> = (props) => {
               item={true}
               className={`todo-individual-${todo.get('id')}`}   
             >
-            <div className="todo-title">
-              {todo.get('title')}         
+            <div className={`todo-title-${todo.get('completed')}`}>
+              {todo.get('title')}               
             </div>  
                 <div className ="todo-buttons">
-                  <Button
+                <Button
+                    variant='outlined'
+                    onClick={   
+                      () => {
+                        markTodoCompleted(
+                          userId,
+                          TodoFactory({
+                               id: todo.get('id'),
+                           userId: userId,
+                            title: todo.get('title'),
+                          }),
+                        );
+                      }  
+                    }
+                    className={`button-completed-${todo.get('completed')}`}
+                  >
+                    Mark Completed
+                  </Button>    
+               
+                  <Button  
                     variant='outlined'
                     onClick={
                       () => {
                         deleteTodo(
                           userId,
                           TodoFactory({
-                               id: todo.get('id'),
+                               id: todo.get('id'),    
                            userId: userId,
                             title: textInput,  
                           }),
                         );
                       }
                     }
+                    className={`button-delete-${todo.get('isSubtodo')}-${todo.get('completed')}`}                
                   >
                     Delete Todo
-                  </Button>
-                 
+                  </Button> 
+
                   <Button
                     key={index}  
                     variant='outlined'
@@ -179,25 +204,28 @@ const Todo: React.FC<ITodoProps> = (props) => {
                         addSubTodo(
                           userId,
                           TodoFactory({   
-                               id: todo.get('id'),
+                               id: todo.get('id'),   
                            userId: userId,
-                            title: textInputAnother,
+                            title: textInputAnother,    
+                            isSubtodo: true,  
                             subtodo: undefined,
-                          }),
+                          }),  
                         );
-                         setTextInput('');
+                         setTextInput('');     
                       }
                     }
+                    className={`button-completed-${todo.get('completed')} button-addsubtodo-${todo.get('isSubtodo')}`}      
                   >
                     Add Sub ToDos
                   </Button>  
                       
-                <TextField
+                <TextField  
                   label='title'
                   value={textInputAnother}
                   onChange={(e) => {
                     setTextInputAnother(e.target.value);    
                   }}  
+                   className={`text-completed-${todo.get('completed')} text-addsubtodo-${todo.get('isSubtodo')}`}
                 />
               
           </div>
@@ -227,7 +255,7 @@ const mapStateToProps = (state: any, props: ITodoComponentProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
-    ...bindActionCreators({ addTodo, deleteTodo, addSubTodo }, dispatch)
+    ...bindActionCreators({ addTodo, deleteTodo, addSubTodo, markTodoCompleted }, dispatch)
   };
 };
   

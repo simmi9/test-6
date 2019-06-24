@@ -13,6 +13,7 @@ import {
   AddTodoAction,
   DeleteTodoAction,
   AddSubTodoAction,
+  MarkTodoCompletedAction,
   IUser,
   AddUserAction,
   DeleteUserAction,
@@ -166,17 +167,51 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
         console.debug('no title!')
         return state;
       }
-     const todoId = lastTodoId + 1;    
+     const todoId = lastTodoId + 1;         
 
       return state.withMutations((mutableState) => {
-       mutableState.set('lastTodoId', todoId);   
+         mutableState.set('lastTodoId', todoId); 
         mutableState.setIn(
           ['todos', todoId],
           todo.withMutations((mutableTodo) => {
-          mutableTodo.set('subtodo', todo); 
+          mutableTodo.set('subtodo', todo);            
           }),
         );      
       }); 
+    }
+    case DefaultActionTypes.MARK_COMPLETED:{
+    const lastTodoId = state.get('lastTodoId');
+      const {
+        payload,
+      } = action as AddSubTodoAction;
+      const {
+        userId,
+        todo, 
+      } = payload;
+
+      let id= lastTodoId;    
+      let cond1 = false;
+      let cond2 = false;    
+      const lasttodo = state.get('todos').get(lastTodoId);  
+      if(lasttodo){   
+      const issub = lasttodo.get("isSubtodo"); 
+        if(issub && !lasttodo.get('completed')){
+        id= lastTodoId ;
+        }else if(!issub && lasttodo.get('completed')){
+        id =todo.get('id'); 
+        } 
+      }  
+           
+      return state.withMutations((mutableState) => {  
+            mutableState.setIn(
+              ['todos',id],      
+              todo.withMutations((mutableTodo) => {
+              if(mutableTodo.get('completed') === false){
+              mutableTodo.set('completed', true);      
+              }   
+              }),  
+            );      
+          });   
     }
     default:
       return state;
@@ -184,3 +219,4 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
 };
 
 export default reducer;
+  
