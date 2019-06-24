@@ -12,6 +12,7 @@ import {
   ITodo,
   AddTodoAction,
   DeleteTodoAction,
+  AddSubTodoAction,
   IUser,
   AddUserAction,
   DeleteUserAction,
@@ -137,6 +138,7 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
       });
     }
      case DefaultActionTypes.DELETE_TODO: {
+     const lastTodoId = state.get('lastTodoId');
       const {
         payload,
       } = action as AddTodoAction;
@@ -144,10 +146,37 @@ export const reducer = (state: Record<IReducerState> = INITIAL_STATE, action: IA
         userId,
         todo,
       } = payload;
-
+      const todoId = lastTodoId - 1;
       return state.withMutations((mutableState) => {
+       mutableState.set('lastTodoId', todoId);  
       mutableState.set('todos', mutableState.get('todos').filter(o => o.get('id') !== todo.get('id')));    
       });
+    }
+    case DefaultActionTypes.ADD_SUB_TODO:{
+    const lastTodoId = state.get('lastTodoId');
+      const {
+        payload,
+      } = action as AddSubTodoAction;
+      const {
+        userId,
+        todo,
+      } = payload;
+
+      if (todo.get('title') === '') {
+        console.debug('no title!')
+        return state;
+      }
+     const todoId = lastTodoId + 1;    
+
+      return state.withMutations((mutableState) => {
+       mutableState.set('lastTodoId', todoId);   
+        mutableState.setIn(
+          ['todos', todoId],
+          todo.withMutations((mutableTodo) => {
+          mutableTodo.set('subtodo', todo); 
+          }),
+        );      
+      }); 
     }
     default:
       return state;
