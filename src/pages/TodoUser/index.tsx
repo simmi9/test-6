@@ -21,6 +21,7 @@ import {
 import {
   AddTodoAction,
   DeleteTodoAction,
+  AddSubTodoAction,
   ITodo,
   TodoFactory,
   IUser,
@@ -38,21 +39,26 @@ interface ITodoComponentProps {
 interface ITodoProps extends ITodoComponentProps {
   addTodo: (userId: number, todo: Record<ITodo>) => void;
   deleteTodo: (userId: number, todo: Record<ITodo>) => void;
+  addSubTodo: ( userId: number, todo: Record<ITodo>) => void;
   userId: number;
   todosForUser: List<Record<ITodo>>;
-  user?: Record<IUser>;
+  user?: Record<IUser>;  
 }
 
 
 const addTodo = (userId: number, todo: Record<ITodo>) => new AddTodoAction({ userId, todo });
 const deleteTodo = (userId: number, todo: Record<ITodo>) => new DeleteTodoAction({ userId, todo });
 
+const  addSubTodo = (userId: number, todo: Record<ITodo>) => new AddSubTodoAction({userId, todo}); 
+
 const Todo: React.FC<ITodoProps> = (props) => {
   const [textInput, setTextInput] = useState('');
+  const [textInputAnother, setTextInputAnother] = useState('');    
 
   const {
     addTodo,
     deleteTodo,
+    addSubTodo,
     userId,
     todosForUser,
     user,
@@ -126,7 +132,7 @@ const Todo: React.FC<ITodoProps> = (props) => {
                       title: textInput,
                     }),
                   );
-                  setTextInput('');
+                  setTextInput('');   
                 }
               }
             >
@@ -138,43 +144,68 @@ const Todo: React.FC<ITodoProps> = (props) => {
 
         {
           todosForUser.map((todo, index) => {
-            return ( <Grid
-              key={index}
+            return ( <section key={index}>      
+            <Grid
               item={true}
+              className={`todo-individual-${todo.get('id')}`}   
             >
-              {todo.get('title')}
-            <Button
-              key={index}
-              variant='outlined'
-              onClick={
-                () => {
-                  deleteTodo(
-                    userId,
-                    TodoFactory({
-                         id: todo.get('id'),
-                     userId: userId,
-                      title: textInput,
-                    }),
-                  );
-                }
-              }
-            >
-              Delete Todo
-            </Button>
-        </Grid> );
+            <div className="todo-title">
+              {todo.get('title')}         
+            </div>  
+                <div className ="todo-buttons">
+                  <Button
+                    variant='outlined'
+                    onClick={
+                      () => {
+                        deleteTodo(
+                          userId,
+                          TodoFactory({
+                               id: todo.get('id'),
+                           userId: userId,
+                            title: textInput,  
+                          }),
+                        );
+                      }
+                    }
+                  >
+                    Delete Todo
+                  </Button>
+                 
+                  <Button
+                    key={index}  
+                    variant='outlined'
+                    onClick={
+                      () => {
+                        addSubTodo(
+                          userId,
+                          TodoFactory({   
+                               id: todo.get('id'),
+                           userId: userId,
+                            title: textInputAnother,
+                            subtodo: undefined,
+                          }),
+                        );
+                         setTextInput('');
+                      }
+                    }
+                  >
+                    Add Sub ToDos
+                  </Button>  
+                      
+                <TextField
+                  label='title'
+                  value={textInputAnother}
+                  onChange={(e) => {
+                    setTextInputAnother(e.target.value);    
+                  }}  
+                />
+              
+          </div>
+        </Grid> 
+        </section>);
 
           })
         }
-
-
-        
-
-
-
-
-
-
-
       </Grid>
     </Grid>
   );
@@ -196,10 +227,10 @@ const mapStateToProps = (state: any, props: ITodoComponentProps) => {
 
 const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) => {
   return {
-    ...bindActionCreators({ addTodo, deleteTodo }, dispatch)
+    ...bindActionCreators({ addTodo, deleteTodo, addSubTodo }, dispatch)
   };
 };
-
+  
 
 export default compose<React.ComponentClass<ITodoComponentProps>>(
   connect(mapStateToProps, mapDispatchToProps)

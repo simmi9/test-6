@@ -13,6 +13,7 @@ export enum DefaultActionTypes {
   ADD_CAT_FACT = 'ADD_CAT_FACT',
   DELETE_USER = 'DELETE_USER',
   DELETE_TODO = 'DELETE_TODO',
+  ADD_SUB_TODO = 'ADD_SUB_TODO',
 }
 
 export interface IUser {
@@ -29,12 +30,14 @@ export interface ITodo {
   id:  number;
   userId: number;
   title: string;
-}
+  subtodo: Record<ITodo>;     
+}  
 
-export const TodoFactory = Record<ITodo>({
-  id: -1,
+export const TodoFactory = Record<ITodo>({        
+  id: -1,  
   userId: -1,
-  title: 'untitled',
+  title: 'untitled',   
+  subtodo: {} as Record<ITodo>,            
 });
 
 export class AddUserAction implements IAction {
@@ -71,6 +74,16 @@ export class DeleteTodoAction implements IAction {
     public payload: {
       userId: number,
       todo: Record<ITodo>, 
+    }
+  ) {}
+}
+
+export class AddSubTodoAction implements IAction {
+  public readonly type = DefaultActionTypes.ADD_SUB_TODO;
+  constructor(
+    public payload: {
+      userId: number,  
+      todo: Record<ITodo>,  
     }
   ) {}
 }
